@@ -1,0 +1,8 @@
+*.swp
+*.tgz
+*~
+*/test/*
+*/stampede/bin/
+*/stampede/test
+*/stampede/annotations/
+*/FastQC/Help/
