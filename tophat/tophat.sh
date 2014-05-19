@@ -184,6 +184,7 @@ fi
 
 samtools sort  "$output_dir/accepted_hits.bam" "$output_dir/accepted_hits_sorted"
 samtools index "$output_dir/accepted_hits_sorted.bam"
+samtools flagstat "$output_dir/accepted_hits_sorted.bam" > "$output_dir/flagstat_out.txt"
 
 name=${QUERY1_F/\.*/}
 realName=${name/_processed_reads/}
