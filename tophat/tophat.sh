@@ -93,10 +93,30 @@ if [[ -n $QUERY1 ]] && [[ -n $QUERY2 ]]; then let PE=1; echo "Paired-end"; fi
 QUERY1_F=$(basename ${QUERY1})
 iget -fT ${QUERY1} .
 
+if [[ "$QUERY1_F" =~ ".gz" ]]; then
+    echoerr "Decompressing $QUERY1_F with gunzip"
+    gunzip $QUERY1_F;
+    QUERY1_F=${QUERY1_F//.gz/}
+elif [[ "$QUERY1_F" =~ ".bz2" ]]; then
+    echoerr "Decompressing $QUERY1_F with bunzip2"
+    bunzip2 $QUERY1_F;
+    QUERY1_F=${QUERY1_F//.bz2/}
+fi
+
 QUERY2_F=
 if [ "$PE" = "1" ]; then
     QUERY2_F=$(basename ${QUERY2})
     iget -fT ${QUERY2} .
+
+    if [[ "$QUERY2_F" =~ ".gz" ]]; then
+        echoerr "Decompressing $QUERY2_F with gunzip"
+        gunzip $QUERY2_F;
+        QUERY2_F=${QUERY2_F//.gz/}
+    elif [[ "$QUERY2_F" =~ ".bz2" ]]; then
+        echoerr "Decompressing $QUERY2_F with bunzip2"
+        bunzip2 $QUERY2_F;
+        QUERY2_F=${QUERY2_F//.bz2/}
+    fi
 
     bin/resynch_paired_reads.pl $QUERY1_F $QUERY2_F
     find2perl . -name '*_synched' -eval 'my $o=$_; $_=~s/_synched$//;rename $o, $_;'|perl
@@ -178,8 +198,8 @@ if ! [[ -d $output_dir ]]; then
 	exit 1
 fi
 if ! [[ -f $output_dir/accepted_hits.bam ]]; then
-        echo "ERROR: output files not found in $output_dir"
-        exit 1
+    echo "ERROR: output files not found in $output_dir"
+    exit 1
 fi
 
 samtools sort  "$output_dir/accepted_hits.bam" "$output_dir/accepted_hits_sorted"
@@ -196,7 +216,7 @@ rm "$output_dir/accepted_hits.bam"
 rm -f *.fa *.bt2 $GTF_F $QUERY1_F $QUERY2_F $GENOME_F $GTF_F
 rm -rfv tmp bin
 
-find tophat_out/ -maxdepth 1 -type f -exec md5sum {} \; > "$output_dir/MD5SUM"
+find tophat_out/ -maxdepth 1 -type f -exec md5sum {} \; > "$output_dir/MD5SUM.txt"
 
 date2=$(date +"%s")
 diff=$(($date2-$date1))
