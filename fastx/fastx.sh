@@ -17,9 +17,9 @@ SEQ1=${seq1}
 FIRST=${first}
 LAST=${last}
 FTRIM=
-if [[ -n $FIRST ]] || [[ -n $LAST ]]; then
-    FTRIM=1
-fi
+#if [[ -n $FIRST ]] || [[ -n $LAST ]]; then
+#    FTRIM=1
+#fi
 
 # fastx quality trimmer
 TQUAL=${quality_threshold}
