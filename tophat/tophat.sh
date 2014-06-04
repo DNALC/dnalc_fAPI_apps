@@ -206,8 +206,14 @@ samtools sort  "$output_dir/accepted_hits.bam" "$output_dir/accepted_hits_sorted
 samtools index "$output_dir/accepted_hits_sorted.bam"
 samtools flagstat "$output_dir/accepted_hits_sorted.bam" > "$output_dir/flagstat_out.txt"
 
-name=${QUERY1_F/\.*/}
-realName=${name/_processed_reads/}
+realName=""
+if [ "$PE" = "1" ]; then
+    realName=$(perl bin/build_name.pl $QUERY1_F $QUERY2_F)
+else
+    name=${QUERY1_F/\.*/}
+    realName=${name/_processed_reads/}
+fi
+
 mv "$output_dir/accepted_hits_sorted.bam" "$output_dir/${realName}-${JOB}.bam"
 mv "$output_dir/accepted_hits_sorted.bam.bai" "$output_dir/${realName}-${JOB}.bam.bai"
 
