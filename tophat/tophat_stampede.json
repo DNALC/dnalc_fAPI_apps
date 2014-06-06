@@ -145,7 +145,7 @@
                 "type": "number",
                 "validator": "\\d++",
                 "visible": true,
-                "required": true
+                "required": false
             },
             "details": {
                 "label": "Mate inner distance",
@@ -164,7 +164,7 @@
                 "type": "number",
                 "validator": "\\d++",
                 "visible": true,
-                "required": true
+                "required": false
             },
             "details": {
                 "label": "Mate distance stdev",
