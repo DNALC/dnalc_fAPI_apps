@@ -16,7 +16,7 @@
 #mate_std_dev=20
 #segment_length=20
 #jobName=th2001
-
+#no_novel_juncs=1
 
 QUERY1=${query1}
 QUERY2=${query2}
@@ -39,6 +39,8 @@ Segment_length=${segment_length}
 Library_type=${library_type}
 Read_mismatches=${read_mismatches}
 
+# default 1
+No_novel_junc=${no_novel_juncs}
 
 echoerr() { echo -e "$@" 1>&2; }
 
@@ -183,6 +185,9 @@ if [[ -n $Read_mismatches  ]];then
 fi
 if [[ -n $GTF_F  ]];then
     ARGS="$ARGS  -G $GTF_F"
+fi
+if [[ -n $No_novel_junc ]] && [ $No_novel_junc == 1 ]; then
+    ARGS="${ARGS} --no-novel-juncs"
 fi
 
 ARGS="$ARGS $GENOME_F $QUERY1_F $QUERY2_F"

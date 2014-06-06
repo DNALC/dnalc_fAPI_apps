@@ -386,21 +386,21 @@
             }
         },
         {
-            "id": "bowtie_version",
+            "id": "no_novel_juncs",
             "value": {
-                "default": 2,
-                "type": "number",
-                "validator": "[1|2]",
+                "default": true,
+                "type": "bool",
+                "validator": "",
                 "visible": true,
                 "required": false
             },
             "details": {
-                "label": "Bowtie version",
-                "description": ""
+                "label": "Only look for reads across junctions indicated in the supplied GFF.",
+                "description": "Tells TopHat to look only for reads across junctions indicated in the supplied GFF."
             },
             "semantics": {
                 "ontology": [
-                    "xs:int"
+                    "xs:boolean"
                 ]
             }
         }
