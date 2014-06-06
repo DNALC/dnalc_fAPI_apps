@@ -5,6 +5,7 @@
 #read_mismatches=2
 #max_insertion_length=3
 #mate_inner_dist=200
+#mate_std_dev=20
 #min_intron_length=70
 #min_anchor_length=8
 #max_multihits=20
@@ -13,7 +14,6 @@
 #splice_mismatches=0
 #max_intron_length=50000
 #min_isoform_fraction=0.15
-#mate_std_dev=20
 #segment_length=20
 #jobName=th2001
 #no_novel_juncs=1
@@ -144,12 +144,16 @@ ARGS="--num-threads $THREADS --output-dir $output_dir"
 if [[ -n $QUAL  ]];then
     ARGS="$ARGS $QUAL"
 fi
-if [[ -n $Mate_inner_dist  ]];then
-    ARGS="$ARGS --mate-inner-dist $Mate_inner_dist"
+
+if [ "$PE" = "1" ]; then
+    if [[ -n $Mate_inner_dist  ]];then
+        ARGS="$ARGS --mate-inner-dist $Mate_inner_dist"
+    fi
+    if [[ -n $Mate_std_dev  ]];then
+        ARGS="$ARGS --mate-std-dev $Mate_std_dev"
+    fi
 fi
-if [[ -n $Mate_std_dev  ]];then
-    ARGS="$ARGS --mate-std-dev $Mate_std_dev"
-fi
+
 if [[ -n $Min_anchor_length  ]];then
     ARGS="$ARGS --min-anchor-length $Min_anchor_length"
 fi
