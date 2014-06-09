@@ -14,9 +14,9 @@ JOB=${jobName}
 SEQ1=${seq1}
 
 # fastx trimmer
-FIRST=${first}
-LAST=${last}
-FTRIM=
+#FIRST=${first}
+#LAST=${last}
+#FTRIM=
 #if [[ -n $FIRST ]] || [[ -n $LAST ]]; then
 #    FTRIM=1
 #fi
@@ -94,23 +94,23 @@ if [[ -n $Q ]]; then
 fi
 
 
-if [[ -n $FTRIM ]]; then
-    if [[ -n $FIRST ]]; then
-	LARGS="$ARGS -f $FIRST";
-    fi
-    if [[ -n $LAST ]]; then
-	LARGS="$LARGS -l $LAST";
-    fi
-
-    outfile="${outfile}.trim";
-    echoerr "Running fastx_trimmer $LARGS -i $infile -o ${outfile}..."
-    fastx_trimmer $LARGS -i $infile -o $outfile
-    echoerr "Done!
-        "
-    infile=$outfile
-
-    LARGS=''
-fi
+#if [[ -n $FTRIM ]]; then
+#    if [[ -n $FIRST ]]; then
+#	LARGS="$ARGS -f $FIRST";
+#    fi
+#    if [[ -n $LAST ]]; then
+#	LARGS="$LARGS -l $LAST";
+#    fi
+#
+#    outfile="${outfile}.trim";
+#    echoerr "Running fastx_trimmer $LARGS -i $infile -o ${outfile}..."
+#    fastx_trimmer $LARGS -i $infile -o $outfile
+#    echoerr "Done!
+#        "
+#    infile=$outfile
+#
+#    LARGS=''
+#fi
 
 if [[ -n $QTRIM ]]; then 
     if [[ -n $TQUAL ]]; then

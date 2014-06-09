@@ -1,13 +1,13 @@
 {
     "name": "dnalc-fxtrim-stampede",
     "parallelism": "serial",
-    "version": "0.0.13.2.2",
+    "version": "0.0.13.2.3",
     "helpURI": "http://hannonlab.cshl.edu/fastx_toolkit/",
     "label": "Fastx_toolkit",
     "shortDescription": "FASTQ/A short-reads pre-processing tools",
     "longDescription": "",
     "author": "Mohammed Khalfan",
-    "datePublished": "May 02, 2014",
+    "datePublished": "June 09, 2014",
     "tags": [
         "next-gen",
         "assembly",
@@ -69,44 +69,6 @@
             "semantics": {
                 "ontology": [
                     "xs:string"
-                ]
-            }
-        },
-        {
-            "id": "first",
-            "value": {
-                "default": 1,
-                "type": "number",
-                "validator": "",
-                "visible": true,
-                "required": false
-            },
-            "details": {
-                "label": "First base to keep",
-                "description": "Trim the 3-primer end of the read up to this nucleotide position (default:1)"
-            },
-            "semantics": {
-                "ontology": [
-                    "xs:integer"
-                ]
-            }
-        },
-        {
-            "id": "last",
-            "value": {
-                "default": 200,
-                "type": "number",
-                "validator": "",
-                "visible": true,
-                "required": false
-            },
-            "details": {
-                "label": "Last base to keep",
-                "description": "Trim all bases 5-Primer to this nucleotide position (default: nine)"
-            },
-            "semantics": {
-                "ontology": [
-                    "xs:integer"
                 ]
             }
         },
@@ -186,7 +148,7 @@
                 ]
             }
         },
-	{
+        {
             "id": "perform_indexing",
             "value": {
                 "default": 0,
