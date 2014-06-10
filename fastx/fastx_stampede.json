@@ -1,7 +1,7 @@
 {
     "name": "dnalc-fxtrim-stampede",
     "parallelism": "serial",
-    "version": "0.0.13.2.3",
+    "version": "0.0.13.3",
     "helpURI": "http://hannonlab.cshl.edu/fastx_toolkit/",
     "label": "Fastx_toolkit",
     "shortDescription": "FASTQ/A short-reads pre-processing tools",

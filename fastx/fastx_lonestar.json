@@ -1,13 +1,13 @@
 {
     "name": "dnalc-fxtrim-lonestar",
     "parallelism": "serial",
-    "version": "0.0.13.2",
+    "version": "0.0.13.3",
     "helpURI": "http://hannonlab.cshl.edu/fastx_toolkit/",
     "label": "Fastx_toolkit",
     "shortDescription": "FASTQ/A short-reads pre-processing tools",
     "longDescription": "",
-    "author": "Sheldon McKay",
-    "datePublished": "Apr 19, 2013",
+    "author": "Cornel Ghiban",
+    "datePublished": "June 09, 2014",
     "tags": [
         "next-gen",
         "assembly",
@@ -18,8 +18,8 @@
     ],
     "executionHost": "lonestar4.tacc.teragrid.org",
     "executionType": "HPC",
-    "deploymentPath": "/iplant/home/smckay/applications/dnalc/fastx",
-    "templatePath": "fastx.sh",
+    "deploymentPath": "/iplant/home/ghiban/applications/fastx",
+    "templatePath": "fastx-lonestar.sh",
     "testPath": "library/test.sh",
     "checkpointable": "false",
     "modules": [
@@ -69,44 +69,6 @@
             "semantics": {
                 "ontology": [
                     "xs:string"
-                ]
-            }
-        },
-        {
-            "id": "first",
-            "value": {
-                "default": 1,
-                "type": "number",
-                "validator": "",
-                "visible": true,
-                "required": false
-            },
-            "details": {
-                "label": "First base to keep",
-                "description": "Trim the 3-primer end of the read up to this nucleotide position (default:1)"
-            },
-            "semantics": {
-                "ontology": [
-                    "xs:integer"
-                ]
-            }
-        },
-        {
-            "id": "last",
-            "value": {
-                "default": 200,
-                "type": "number",
-                "validator": "",
-                "visible": true,
-                "required": false
-            },
-            "details": {
-                "label": "Last base to keep",
-                "description": "Trim all bases 5-Primer to this nucleotide position (default: nine)"
-            },
-            "semantics": {
-                "ontology": [
-                    "xs:integer"
                 ]
             }
         },
@@ -183,6 +145,25 @@
             "semantics": {
                 "ontology": [
                     "xs:double"
+                ]
+            }
+        },
+        {
+            "id": "perform_indexing",
+            "value": {
+                "default": 0,
+                "type": "number",
+                "validator": "",
+                "visible": true,
+                "required": false
+            },
+            "details": {
+                "label": "Index reads prior to filtering",
+                "description": "For paired end reads, files must be indexed prior to running FastX Toolkit in order to maintain synteny between mates"
+            },
+            "semantics": {
+                "ontology": [
+                    "xs:integer"
                 ]
             }
         }
