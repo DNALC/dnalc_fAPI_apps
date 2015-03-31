@@ -388,7 +388,7 @@
         {
             "id": "no_novel_juncs",
             "value": {
-                "default": true,
+                "default": false,
                 "type": "bool",
                 "validator": "",
                 "visible": true,

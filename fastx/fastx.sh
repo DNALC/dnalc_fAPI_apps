@@ -1,3 +1,4 @@
+
 #jobName="fxtest$RANDOM"
 #seq1='/iplant/home/smckay/fastq/WT_rep1.fastq'
 #quality_threshold=20
@@ -11,7 +12,7 @@
 JOB=${jobName}
 
 # inputs
-SEQ1=${seq1}
+SEQ1=$(echo ${seq1}|sed 's"\(//*\)"/"g')
 
 # fastx trimmer
 #FIRST=${first}
@@ -51,8 +52,18 @@ OUTDIR=./fastx_out
 mkdir $OUTDIR
 
 # fetch the input file
-iget -fT $SEQ1
-infile=$(basename $SEQ1)
+iget -fT "$SEQ1"
+infile=$(basename "$SEQ1")
+
+# fix the space problem..
+if [[ "$infile" =~ " " ]]; then
+    new_name=${infile}
+    new_name=${new_name// /_}
+    echoerr "new name: $new_name"
+    mv -v "$infile" $new_name
+    infile=${new_name}
+fi
+
 outfile=${infile/\.*/}
 outfile="${OUTDIR}/$outfile";
 
@@ -60,26 +71,26 @@ outfile="${OUTDIR}/$outfile";
 zipper=
 if [[ "$infile" =~ ".gz" ]]; then
     zipper=gzip
-    $zipper -d $infile;
-    infile=${infile//.gz/}
     echoerr "Decompressing $infile with $zipper"
+    $zipper -d "$infile"
+    infile=${infile//.gz/}
 fi
 if [[ "$infile" =~ ".bz2" ]]; then
     zipper=bzip2
-    $zipper -d $infile;
-    infile=${infile//.bz2/}
     echoerr "Decompressing $infile with $zipper"
+    $zipper -d "$infile"
+    infile=${infile//.bz2/}
 fi
 basename=$infile;
 
-if [[ $INDEXING == "1" ]]; then
-    echo indexing...
+if [[ -n "$INDEXING" && ( $INDEXING == "1" || $INDEXING == "true" ) ]]; then
+    echoerr indexing...
 
     indexed_file="${outfile}-idx.fastq"
     perl bin/reindex_fq.pl $infile > $indexed_file
 
     sleep 1
-    mv $indexed_file $infile
+    mv -v $indexed_file $infile
 fi
 
 ARGS=

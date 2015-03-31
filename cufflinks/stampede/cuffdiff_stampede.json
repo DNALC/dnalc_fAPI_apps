@@ -1,13 +1,13 @@
 {
     "name": "dnalc-cuffdiff-stampede-test",
     "parallelism": "serial",
-    "version": "2.1.11",
+    "version": "2.1.1.2",
     "helpURI": "http://cufflinks.cbcb.umd.edu/",
     "label": "Cuffdiff",
     "shortDescription": "Find significant changes in transcript expression, splicing, and promoter use.",
     "longDescription": "",
-    "author": "Sheldon McKay",
-    "datePublished": "June 13, 2013",
+    "author": "Mohammed Khalfan",
+    "datePublished": "Dec 04, 2014",
     "tags": [
         "next-gen",
         "assembly",
@@ -32,7 +32,7 @@
         {
             "id": "query1",
             "value": {
-                "default": "/mkhalfan/cuffdiff_test/gtf/WT_rep2.gtf",
+                "default": "/smckay/cuffdiff_test/gtf/WT_rep2_transcipts.gtf",
                 "validator": "",
                 "required": false,
                 "visible": true
@@ -54,7 +54,7 @@
         {
             "id": "query2",
             "value": {
-                "default": "/mkhalfan/cuffdiff_test/gtf/WT_rep2.gtf",
+                "default": "/smckay/cuffdiff_test/gtf/WT_rep2_transcipts.gtf",
                 "validator": "",
                 "required": false,
                 "visible": true
@@ -296,7 +296,7 @@
         {
             "id": "sam1_f1",
             "value": {
-                "default": "/mkhalfan/cuffdiff_test/WT_rep1.bam",
+                "default": "/smckay/cuffdiff_test/WT_rep1.bam",
                 "validator": "",
                 "required": true,
                 "visible": true
@@ -388,7 +388,7 @@
         {
             "id": "sam2_f1",
             "value": {
-                "default": "/mkhalfan/cuffdiff_test/hy5_rep1.bam",
+                "default": "/smckay/cuffdiff_test/hy5_rep1.bam",
                 "validator": "",
                 "required": true,
                 "visible": true
@@ -1359,6 +1359,24 @@
                 ]
             }
         },
+	{   "id": "species",
+	    "value": {
+		"default": false,
+                "type": "string",
+                "validator": "",
+                "visible": true,
+                "required": true,
+            },
+	    "details": {
+                "label": "Species Name",
+                "description": ""
+            },
+            "semantics": {
+                "ontology": [
+                    "xs:string"
+                ]
+            }
+	},
         {
             "id": "poissonDispersion",
             "value": {
@@ -1419,7 +1437,7 @@
         {
             "id": "totalHitsNorm",
             "value": {
-                "default": true,
+                "default": false,
                 "type": "bool",
                 "validator": "",
                 "visible": true,
@@ -1438,7 +1456,7 @@
         {
             "id": "compatibleHitsNorm",
             "value": {
-                "default": false,
+                "default": true,
                 "type": "bool",
                 "validator": "",
                 "visible": true,
@@ -1546,6 +1564,44 @@
             "semantics": {
                 "ontology": [
                     "xs:integer"
+                ]
+            }
+        },
+        {
+            "id": "refGTF",
+            "value": {
+                "default": true,
+                "type": "bool",
+                "validator": "",
+                "visible": true,
+                "required": false
+            },
+            "details": {
+                "label": "Provide Cuffmerge a reference GTF",
+                "description": ""
+            },
+            "semantics": {
+                "ontology": [
+                    "xs:boolean"
+                ]
+            }
+        },
+        {
+            "id": "skipCuffmerge",
+            "value": {
+                "default": false,
+                "type": "bool",
+                "validator": "",
+                "visible": true,
+                "required": false
+            },
+            "details": {
+                "label": "Skip Cuffmerge",
+                "description": ""
+            },
+            "semantics": {
+                "ontology": [
+                    "xs:bool"
                 ]
             }
         }

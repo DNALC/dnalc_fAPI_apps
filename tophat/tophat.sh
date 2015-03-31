@@ -120,7 +120,7 @@ if [ "$PE" = "1" ]; then
         QUERY2_F=${QUERY2_F//.bz2/}
     fi
 
-    bin/resynch_paired_reads.pl $QUERY1_F $QUERY2_F
+    perl bin/resynch_paired_reads.pl $QUERY1_F $QUERY2_F
     find2perl . -name '*_synched' -eval 'my $o=$_; $_=~s/_synched$//;rename $o, $_;'|perl
     
     wc -l *.fastq
@@ -134,7 +134,7 @@ fi
 
 
 # Are we Sanger quals or...
-QUAL=$(bin/check_qual_score.pl $QUERY1_F)
+QUAL=$(perl bin/check_qual_score.pl $QUERY1_F)
 if [[ -n $QUAL ]]; then
     echoerr "Quality scaling is $QUAL"
 fi

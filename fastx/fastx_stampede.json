@@ -1,13 +1,13 @@
 {
     "name": "dnalc-fxtrim-stampede",
     "parallelism": "serial",
-    "version": "0.0.13.3",
+    "version": "0.0.13.6",
     "helpURI": "http://hannonlab.cshl.edu/fastx_toolkit/",
     "label": "Fastx_toolkit",
     "shortDescription": "FASTQ/A short-reads pre-processing tools",
     "longDescription": "",
-    "author": "Mohammed Khalfan",
-    "datePublished": "June 09, 2014",
+    "author": "Cornel Ghiban",
+    "datePublished": "June 26, 2014",
     "tags": [
         "next-gen",
         "assembly",
@@ -18,7 +18,7 @@
     ],
     "executionHost": "stampede.tacc.xsede.org",
     "executionType": "HPC",
-    "deploymentPath": "/iplant/home/mkhalfan/applications/fastx",
+    "deploymentPath": "/iplant/home/ghiban/applications/fastx",
     "templatePath": "fastx.sh",
     "testPath": "library/test.sh",
     "checkpointable": "false",
@@ -26,6 +26,7 @@
         "purge",
         "load TACC",
         "load fastx_toolkit/0.0.13.2",
+        "load java64/1.7.0",
         "load irods"
     ],
     "inputs": [

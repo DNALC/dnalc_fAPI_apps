@@ -1,7 +1,6 @@
 # A little function to print to STDERR
 echoerr() { echo "$@" 1>&2; }
 
-
 JOB=${jobName}
 
 # GTF files to merge
@@ -68,9 +67,11 @@ REFSEQ=${ref_seq}
 # --mask-file optional
 MASK=${mask_gtf}
 
+SKIPCUFFMERGE=${skipCuffmerge}
+USEGTF=${refGTF}
+
 tar zxf ./bin.tgz
 tar zxf ./R.tgz
-tar zxf ./annotations.tgz
 
 path=$(pwd);
 export PATH=$PATH:${path}/bin
@@ -87,10 +88,8 @@ REFSEQ=$REFSEQ_F;
 MASK_F= 
 if [[ -n $MASK ]]; then
   MASK_F=${MASK##*/}
-  iget -fT $MASK
+  #iget -fT $MASK
 fi
-
-
 
 MANIFEST=gtf_to_merge.txt
 
@@ -173,57 +172,58 @@ fi
 
 THREADS=$(cat /proc/cpuinfo | grep processor | wc -l)
 
-echoerr "Inspecting list of GTF files to merge..."
-lines=$(cat $MANIFEST | wc -l)
-unique=$(sort -u $MANIFEST | wc -l)
+if [[ -n $SKIPCUFFMERGE ]] && [[ $SKIPCUFFMERGE == 0 || $SKIPCUFFMERGE == "false" ]]; then
 
-if ! [[ $unique -eq $lines ]]; then
-    echoerr "Error: Each GTF file to be merged must have a unique filename"
-    exit 1
-fi
+	echoerr "Inspecting list of GTF files to merge..."
+	lines=$(cat $MANIFEST | wc -l)
+	unique=$(sort -u $MANIFEST | wc -l)
 
-if ! [[ $unique -ge 2 ]]; then
-    echoerr "Error: at least two GTF files are required for merging"
-    exit 1
-fi
+	if ! [[ $unique -eq $lines ]]; then
+	    echoerr "Error: Each GTF file to be merged must have a unique filename"
+	    exit 1
+	fi
 
-if [[ -n $lines ]]; then
-  ARGS="-p $THREADS -o cuffmerge_out -g $REFGTF -s $REFSEQ $MANIFEST";
-  echoerr "Executing cuffmerge ${ARGS}..."
-  cuffmerge $ARGS 
-  cuffmerge_munge_ids.pl
+	if ! [[ $unique -ge 2 ]]; then
+	    echoerr "Error: at least two GTF files are required for merging"
+	    exit 1
+	fi
 
-  MERGEDONE=$(ls -alh cuffmerge_out)
-  echoerr "DONE!
-  $MERGEDONE
-  "
+	if [[ -n $lines ]]; then
+		if [[ -n $USEGTF ]] && [[ $USEGTF == 1 || $USEGTF == 'true' ]]; then
+			INCLUDE_REF_GTF=" -g $REFGTF "
+			echoerr "Reference GTF being used at Cuffmerge"
+		else
+			INCLUDE_REF_GTF=""
+			echoerr "No reference GTF being used at Cuffmerge"
+		fi
 
-  ANNOTATION='./cuffmerge_out/merged_with_ref_ids.gtf'
-  OK=$(head -1 $ANNOTATION)
-  if ! [[ -n $OK ]];then
-    echoerr "No point going on, cuffmerge failed"
-    exit 1
-  fi
+		ARGS="-p $THREADS -o cuffmerge_out $INCLUDE_REF_GTF -s $REFSEQ $MANIFEST";
+	  	echoerr "Executing cuffmerge ${ARGS}..."
+		cuffmerge $ARGS 
+
+  		MERGEDONE=$(ls -alh cuffmerge_out)
+  		echoerr "DONE!
+  		$MERGEDONE
+  		"
+
+  		ANNOTATION='./cuffmerge_out/merged.gtf'
+  		OK=$(head -1 $ANNOTATION)
+  		if ! [[ -n $OK ]];then
+    			echoerr "No point going on, cuffmerge failed"
+			exit 1
+  		fi
+	fi
+else
+echoerr "Skipping Cuffmerge"
 fi
 
 if ! [[ -n $ANNOTATION ]]; then
-  $ANNOTATION = $REFGTF
+  ANNOTATION=$REFGTF
 fi
 
 
-# Conditional flags
-# 0
-treatAsTimeSeries=${treatAsTimeSeries}
-# 0
-multiReadCorrect=${multiReadCorrect}
-# 0
-upperQuartileNorm=${upperQuartileNorm}
-# 0
-totalHitsNorm=${totalHitsNorm}
-# 1
-compatibleHitsNorm=${compatibleHitsNorm}
-# 0  --poisson-dispersion
-poissonDispersion=${poissonDispersion}
+# not supported/recommended
+#poissonDispersion=${poissonDispersion}
 
 # Mandatory parameters
 # --min-alignment-count 10
@@ -280,9 +280,7 @@ if [[ -n $SAM1_F4 ]]; then
     SAM1_F="$SAM1_F,$SAM1_F4"
 fi
 
-echoerr "
-SAM1 files $SAM1_F
-"
+echoerr "SAM1 files $SAM1_F"
 
 SAM2_F=''
 SAM2_F1=${SAM2_F1##*/}
@@ -307,9 +305,7 @@ if [[ -n $SAM2_F4 ]]; then
     SAM1_F="$SAM2_F,$SAM2_F4"
 fi
 
-echoerr "
-SAM2 files $SAM2_F                                                                                                                                                   
-"
+echoerr "SAM2 files $SAM2_F"
 
 SAM3_F=""
 if [[ -n $SAM3_F1 ]]; then
@@ -335,6 +331,8 @@ if [[ -n $SAM3_F4 ]]; then
     iget -fT ${sam3_f4} .
     SAM3_F="$SAM3_F,$SAM3_F4"
 fi
+
+echoerr "SAM3 Files $SAM3_F"
 
 SAM4_F=""
 if [[ -n $SAM4_F1 ]]; then
@@ -519,43 +517,28 @@ OPTIONS="$OPTIONS --library-type ${LIBRARYTYPE} --min-alignment-count ${MINALIGN
 ANNOTATION_F=
 if [[ -n $ANNOTATION ]]; then
     ANNOTATION_F=$ANNOTATION
-
-    ANNO_OK=$(grep p_id $ANNOTATION_F)
-    if [[ ! -n $ANNO_OK  ]]; then
-        bin/cuffdiff_fix_annotations.pl $ANNOTATION_F $REFSEQ_F
-    fi
-    CDS_OK=$(grep CDS $ANNOTATION_F)
-    if [[ ! -n $CDS_OK ]]; then
-	cat $ANNOTATION_F |sed 's/exon/CDS/' > CDS.gtf
-	cat $ANNOTATION_F CDS.gtf |sort -k1,1 -k4,4n -k5,5n -k3,3r >rebuilt.gtf
-	cp $ANNOTATION_F ${ANNOTATION_F}.bak 
-	mv rebuilt.gtf $ANNOTATION_F
-	rm -f CDS.gtf
-    fi
 fi
 
 # Flag  OPTIONS
-if [[ -n $treatAsTimeSeries ]] && [ $treatAsTimeSeries == 1 ]; then
+if [[ -n $treatAsTimeSeries && $treatAsTimeSeries == 1 ]]; then
 	OPTIONS="${OPTIONS} --time-series"
 fi
 
-if [[ -n  $multiReadCorrect ]] && [ $multiReadCorrect == 1 ]; then
+if [[ -n  $multiReadCorrect && $multiReadCorrect == 1 ]]; then
 	OPTIONS="${OPTIONS} --multi-read-correct"
 fi
 
-if [[ -n $totalHitsNorm ]] && [ $upperQuartileNorm == 1 ]; then
+if [[ -n $upperQuartileNorm && $upperQuartileNorm == 1 ]]; then
 	OPTIONS="${OPTIONS} --upper-quartile-norm"
 fi
 
-if [[ -n $totalHitsNorm ]] && [ $totalHitsNorm == 1 ]; then
+if [[ -n $totalHitsNorm ]] && [[ $totalHitsNorm == 1 || $totalHitsNorm == "true" ]]; then
 	OPTIONS="${OPTIONS} --total-hits-norm"
-fi
-
-if [[ -n $compatibleHitsNorm ]] && [ $compatibleHitsNorm == 1 ]; then
+elif [[ -n $compatibleHitsNorm ]] && [[ $compatibleHitsNorm == 1 || $compatibleHitsNorm == "true" ]]; then
 	OPTIONS="${OPTIONS} --compatible-hits-norm"
 fi
 
-if [[ -n $poissonDispersion ]] && [ $poissonDispersion == 1 ]; then
+if [[ -n $poissonDispersion && $poissonDispersion == 1 ]]; then
 	OPTIONS="${OPTIONS} --dispersion-method poisson"
 fi
 
@@ -566,6 +549,9 @@ fi
 if [[ -z ${FRAGLENSTDEV} ]]; then
 	OPTIONS="${OPTIONS} --frag-len-std-dev ${FRAGLENSTDEV}"
 fi
+if [[ -n $fdr ]]; then
+	OPTIONS="${OPTIONS} --FDR $fdr"	
+fi
 
 if [[ -n $REFSEQ_F ]]; then
         OPTIONS="${OPTIONS} -b ${REFSEQ_F}"
@@ -574,6 +560,10 @@ fi
 # and we pull the trigger...
 SAMS="${SAM1_F} ${SAM2_F} ${SAM3_F} ${SAM4_F} ${SAM5_F} ${SAM6_F}"
 SAMS="${SAMS} ${SAM7_F} ${SAM8_F} ${SAM9_F} ${SAM10_F}"
+echoerr $SAMS
+LS=$(ls -al *.bam *.gtf);
+echoerr $LS;
+
 echoerr "Executing cuffdiff ${OPTIONS} ${ANNOTATION_F} $SAMS...
 "
 cuffdiff ${OPTIONS} ${ANNOTATION_F} $SAMS 2>cuffdiff.stderr
@@ -597,7 +587,17 @@ echoerr "Done!"
 
 echoerr "Sorting output data...
 "
-cuffdiff_sort.pl $path $LABELS
+# get the biomart annotations
+PATH_TO_ANNOTATIONS="/iplant/home/shared/iplant_DNA_subway/genomes/${species}/${species}.txt"
+ANN_EXISTS=$(ils $PATH_TO_ANNOTATIONS)
+if [[ -n $ANN_EXISTS ]]; then
+        echoerr "BioMart annotations exist, grabbing them, then running cuffdiff_sort.pl"
+        iget -fT $PATH_TO_ANNOTATIONS
+        cuffdiff_sort.pl $path $LABELS ${species}
+else
+        echoerr "BioMart annotations do not exist, running cuffdiff_sort.pl without them"
+        cuffdiff_sort.pl $path $LABELS
+fi
 
 echoerr "Done!"
 

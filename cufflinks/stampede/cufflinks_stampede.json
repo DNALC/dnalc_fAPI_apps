@@ -1,13 +1,13 @@
 {
     "name": "dnalc-cufflinks-stampede",
     "parallelism": "serial",
-    "version": "2.1.1",
+    "version": "2.1.1.2",
     "helpURI": "http://cufflinks.cbcb.umd.edu/",
     "label": "CuffLinks",
     "shortDescription": "Transcript assembly and basic quantitation for RNA-Seq",
     "longDescription": "",
-    "author": "Sheldon McKay",
-    "datePublished": "Apr 19, 2013",
+    "author": "Mohammed Khalfan",
+    "datePublished": "Sept 08 2014",
     "tags": [
         "next-gen",
         "assembly",
@@ -18,7 +18,7 @@
     ],
     "executionHost": "stampede.tacc.xsede.org",
     "executionType": "HPC",
-    "deploymentPath": "/iplant/home/smckay/applications/dnalc/cufflinks/stampede",
+    "deploymentPath": "/iplant/home/mkhalfan/applications/cufflinks/stampede",
     "templatePath": "cufflinks.sh",
     "testPath": "library/test.sh",
     "checkpointable": "false",
@@ -32,7 +32,7 @@
         {
             "id": "query1",
             "value": {
-                "default": "/smckay/cuffdiff_test/WT_rep1.bam",
+                "default": "/mkhalfan/cuffdiff_test/WT_rep1.bam",
                 "validator": "",
                 "required": true,
                 "visible": true
@@ -53,39 +53,16 @@
             }
         },
         {
-            "id": "ANNOTATION",
+            "id": "annotation",
             "value": {
-                "default": "/smckay/cuffdiff_test/annotation.gtf",
+                "default": "",
                 "validator": "",
-                "required": false,
+                "required": true,
                 "visible": true
             },
             "details": {
                 "label": "Reference annotation",
-                "description": "Tells Cufflinks to use the supplied reference annotation to estimate isoform expression. It will not assemble novel transcripts, and the program will ignore alignments not structurally compatible with any reference transcript."
-            },
-            "semantics": {
-                "ontology": [
-                    "http://sswapmeet.sswap.info/util/Annotation"
-                ],
-                "minCardinality": 1,
-                "fileTypes": [
-                    "GTF-2.2",
-                    "GFF-3.0"
-                ]
-            }
-        },
-        {
-            "id": "GUIDE_GTF",
-            "value": {
-                "default": "",
-                "validator": "",
-                "required": false,
-                "visible": true
-            },
-            "details": {
-                "label": "Guide annotation for RABT",
-                "description": "Tells Cufflinks to use the supplied reference annotation (GFF) to guide RABT assembly. Reference transcripts will be tiled with faux-reads to provide additional information in assembly."
+                "description": "Annotation file to use with -G or -g option"
             },
             "semantics": {
                 "ontology": [
@@ -124,7 +101,7 @@
         {
             "id": "BIAS_FASTA",
             "value": {
-                "default": "/smckay/cuffdiff_test/genome.fas",
+                "default": "/mkhalfan/cuffdiff_test/genome.fas",
                 "validator": "",
                 "required": false,
                 "visible": true
@@ -145,6 +122,44 @@
         }
     ],
     "parameters": [
+        {
+            "id": "gtf",
+            "value": {
+                "default": false,
+                "type": "bool",
+                "validator": "",
+                "visible": true,
+                "required": false
+            },
+            "details": {
+                "label": "Use reference annotation to estimate isoform expression",
+                "description": "Tells Cufflinks to use the supplied reference annotation to estimate isoform expression. It will not assemble novel transcripts will ignore alignments not structurally compatible with any reference transcript."
+            },
+            "semantics": {
+                "ontology": [
+                    "xs:boolean"
+                ]
+            }
+        },
+        {
+            "id": "guide_gtf",
+            "value": {
+                "default": false,
+                "type": "bool",
+                "validator": "",
+                "visible": true,
+                "required": false
+            },
+            "details": {
+                "label": "Use reference annotation to guide RABT assembly",
+                "description": "Tells Cufflinks to use the supplied reference annotation to guide Reference Annotation Based Transcript (RABT) assembly. Output will include all reference transcripts as well as any novel genes and isoforms that are assembled."
+            },
+            "semantics": {
+                "ontology": [
+                    "xs:boolean"
+                ]
+            }
+        },
         {
             "id": "jobName",
             "value": {
@@ -355,63 +370,6 @@
             }
         },
         {
-            "id": "intronOverhangTolerance",
-            "value": {
-                "default": 10,
-                "type": "number",
-                "validator": "",
-                "visible": true,
-                "required": true
-            },
-            "details": {
-                "label": "Intron overhang tolerance",
-                "description": "The number of bp allowed to enter the intron of a reference transcript when determining if an assembled transcript should be merged with it."
-            },
-            "semantics": {
-                "ontology": [
-                    "xs:integer"
-                ]
-            }
-        },
-        {
-            "id": "overhangTolerance3",
-            "value": {
-                "default": 600,
-                "type": "number",
-                "validator": "",
-                "visible": true,
-                "required": true
-            },
-            "details": {
-                "label": "3' overhange tolerance",
-                "description": "The number of bp allowed to overhang the 3' end of a reference transcript when determining if an assembled transcript should be merged with it."
-            },
-            "semantics": {
-                "ontology": [
-                    "xs:integer"
-                ]
-            }
-        },
-        {
-            "id": "noFauxReads",
-            "value": {
-                "default": false,
-                "type": "bool",
-                "validator": "",
-                "visible": true,
-                "required": false
-            },
-            "details": {
-                "label": "Don't use faux reads",
-                "description": "This option disables tiling of the reference transcripts with faux reads during RABT."
-            },
-            "semantics": {
-                "ontology": [
-                    "xs:boolean"
-                ]
-            }
-        },
-        {
             "id": "multiReadCorrect",
             "value": {
                 "default": false,
@@ -479,7 +437,64 @@
             },
             "details": {
                 "label": "Use annotation-compatible hits to calculate FPKM",
-                "description": "Cufflinks counts only those fragments compatible with some reference transcript towards the number of mapped hits used in the FPKM denominator."
+                "description": "CuffDiff counts only those fragments compatible with some reference transcript towards the number of mapped hits used in the FPKM denominator."
+            },
+            "semantics": {
+                "ontology": [
+                    "xs:boolean"
+                ]
+            }
+        },
+	{
+            "id": "overhangTolerance3",
+            "value": {
+                "default": "600",
+                "type": "number",
+                "validator": "",
+                "visible": true,
+                "required": false
+            },
+            "details": {
+                "label": "3 Overhang Tolerance",
+                "description": "The number of bp allowed to overhang the 3' end of a reference transcript when determining if an assembled transcript should be merged with it (ie, the assembled transcript is not novel)."
+            },
+            "semantics": {
+                "ontology": [
+                    "xs:integer"
+                ]
+            }
+        },
+        {
+            "id": "intronOverhangTolerance",
+            "value": {
+                "default": "50",
+                "type": "number",
+                "validator": "",
+                "visible": true,
+                "required": false
+            },
+            "details": {
+                "label": "Intron Overhang Tolerance",
+                "description": "The number of bp allowed to enter the intron of a reference transcript when determining if an assembled transcript should be merged with it (ie, the assembled transcript is not novel)."
+            },
+            "semantics": {
+                "ontology": [
+                    "xs:integer"
+                ]
+            }
+        },
+        {
+            "id": "noFauxReads",
+            "value": {
+                "default": false,
+                "type": "bool",
+                "validator": "",
+                "visible": true,
+                "required": false
+            },
+            "details": {
+                "label": "No Faux Reads",
+                "description": "This option disables tiling of the reference transcripts with faux reads. Use this if you only want to use sequencing reads in assembly but do not want to output assembled transcripts that lay within reference transcripts. All reference transcripts in the input annotation will also be included in the output."
             },
             "semantics": {
                 "ontology": [

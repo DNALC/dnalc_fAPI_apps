@@ -2,10 +2,10 @@
 output_dir=./cufflinks_out
 
 # Conditionals
-#multiReadCorrect=${multiReadCorrect}
-#upperQuartileNorm=${upperQuartileNorm}
-#totalHitsNorm=${totalHitsNorm}
-#compatibleHitsNorm=${compatibleHitsNorm}
+multiReadCorrect=${multiReadCorrect}
+upperQuartileNorm=${upperQuartileNorm}
+totalHitsNorm=${totalHitsNorm}
+compatibleHitsNorm=${compatibleHitsNorm}
 
 # Mandatory
 query1=${query1}
@@ -21,31 +21,32 @@ trim3dropoffFrac=${trim3dropoffFrac}
 minFragsPerTransfrag=${minFragsPerTransfrag}
 JOB=${jobName}
 
-# Not at all mandatory
+# These three options only have affect when used with -g/--GTF-guide (RABT assembly)
 intronOverhangTolerance=${intronOverhangTolerance}
 overhangTolerance3=${overhangTolerance3}
+noFauxReads=${noFauxReads}
+
 libraryType=${libraryType}
 
 LABEL=${label}
 # Force replace spaces with empty characters
 LABEL=${LABEL//\ /}
 
-noFauxReads=${noFauxReads}
-
 # Optional file inputs
-#ANNOTATION=${ANNOTATION}
-ANNOTATION=
-#GUIDE=${GUIDE_GTF}
-GUIDE=
+GTF=${gtf} #bool
+GUIDE=${guide_gtf} #bool
 #MASK=${MASK_GTF}
 BIAS=${BIAS_FASTA}
+
+# Annotation will only be used if GTF or GUIDE is set to true
+ANNOTATION=${annotation}
 
 # Create local temp directory
 export TMPDIR="${CWD}/tmp"
 mkdir -p $TMPDIR
 export OMP_NUM_THREADS=$(cat /proc/cpuinfo | grep processor | wc -l)
 
-echoerr() { echo "$@" 1>&2; }
+echoerr() { echo -e "$@" 1>&2; }
 
 tar xzf bin.tgz
 export CWD=${PWD}
@@ -60,7 +61,8 @@ query1_F=$(basename ${query1})
 iget -fT ${query1} .
 
 # Reference GTF (optional)
-if [[ -n $ANNOTATION ]]; then
+#if [[ -n $ANNOTATION ]]; then
+if [[ -n $GTF && ( $GTF == "1" || $GTF == "true" ) ]]; then
 	ANNO_F=$(basename ${ANNOTATION})
 	iget -fT ${ANNOTATION} .
 	OPTIONS="${OPTIONS} --GTF ${ANNO_F}"
@@ -72,10 +74,10 @@ if [[ -n $MASK ]]; then
 	OPTIONS="${OPTIONS} --mask-file ${MASK_F}"
 fi
 # Guide GTF (optional)
-if [[ -n $GUIDE ]]; then
-	GUIDE_F=$(basename ${GUIDE})
-	iget -fT ${GUIDE} .
-	OPTIONS="${OPTIONS} --GTF-guide ${GUIDE_F}"
+if [[ -n $GUIDE && ( $GUIDE == "1" || $GUIDE == "true" ) ]]; then
+	ANNO_F=$(basename ${ANNOTATION})
+	iget -fT ${ANNOTATION} .
+	OPTIONS="${OPTIONS} --GTF-guide ${ANNO_F}"
 fi
 # Bias Fasta (optional)
 if [[ -n $BIAS ]]; then
@@ -85,20 +87,18 @@ if [[ -n $BIAS ]]; then
 fi
 
 # Conditional or optional params
- if [[ -n $multiReadCorrect  ]]; then
+if [[ -n $multiReadCorrect && ( $multiReadCorrect == "1" || $multiReadCorrect == "true" ) ]]; then
         OPTIONS="${OPTIONS} --multi-read-correct"
 fi
 
-if [[ -n $upperQuartileNorm  ]]; then
+if [[ -n $upperQuartileNorm && ( $upperQuartileNorm == "1" || $upperQuartileNorm == "true" ) ]]; then
         OPTIONS="${OPTIONS} --upper-quartile-norm"
 fi
 
-if [[ -n $totalHitsNorm  ]]; then
-        OPTIONS="${OPTIONS} --total-hits-norm"
-fi
-
-if [[ -n $compatibleHitsNorm  ]]; then
+if [[ -n $compatibleHitsNorm ]] && [[ $compatibleHitsNorm == "1" || $compatibleHitsNorm == "true" ]] && [[ -n $GTF ]] && [[ $GTF == "1" || $GTF == "true" ]]; then
         OPTIONS="${OPTIONS} --compatible-hits-norm"
+elif [[ -n "$totalHitsNorm" ]] && [[ $totalHitsNorm == "1" || $totalHitsNorm == "true" ]]; then
+        OPTIONS="${OPTIONS} --total-hits-norm"
 fi
 
 if [[ -n $libraryType ]]; then
@@ -109,17 +109,19 @@ if [[ -n $LABEL ]]; then
 	OPTIONS="${OPTIONS} --label ${LABEL}"
 fi
 
-if [[ -n $overhangTolerance3 ]]; then
+if [[ -n $overhangTolerance3 && -n $GUIDE && ( $GUIDE == "1" || $GUIDE == "true" ) ]]; then
 	OPTIONS="${OPTIONS} --3-overhang-tolerance ${overhangTolerance3}"
 fi
 
-if [[ -n $intronOverhangTolerance ]]; then
+if [[ -n $intronOverhangTolerance && -n $GUIDE && ( $GUIDE == "1" || $GUIDE == "true" ) ]]; then
 	OPTIONS="${OPTIONS} --intron-overhang-tolerance ${intronOverhangTolerance}"
 fi
 
-if [[ -n $noFauxReads ]]; then
+if [[ -n $noFauxReads && ( $noFauxReads == "1" || $noFauxReads == "true" ) && -n $GUIDE && ( $GUIDE == "1" || $GUIDE == "true" )]]; then
 	OPTIONS="${OPTIONS} --no-faux-reads"
 fi
+
+echoerr "CUFFLINKS OPTIONS: $OPTIONS $query1_F\n"
 
 cufflinks $OPTIONS $query1_F 2>cufflinks.stderr
 name=${query1_F/\.*/}
